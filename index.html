@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="th">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}img{max-width:100%}</style>
+<title>ลง Horizon ผ่านลันเชอร์</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anuphan:wght@400;500;600;700&family=Pixelify+Sans:wght@500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one narrow column of numbered steps, each step = text + screenshot; a sticky progress bar on top. */
+:root {
+  --bg: #f3f1f7;
+  --surface: #ffffff;
+  --fg: #1c1a26;
+  --muted: #5d5872;
+  --line: #dcd7e8;
+  --accent: #6a4cf0;
+  --accent-ink: #ffffff;
+  --grass: #3f8f3a;
+  --warn-bg: #fff4dc;
+  --warn-fg: #6b4a00;
+  --warn-line: #f0d48a;
+  --code-bg: #ece8f6;
+  --font-display: "Pixelify Sans", "Anuphan", system-ui, sans-serif;
+  --font-body: "Anuphan", "Noto Sans Thai", "Leelawadee UI", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14121c; --surface: #1d1a28; --fg: #ece9f5; --muted: #a39dba; --line: #322d44;
+    --accent: #9a85ff; --accent-ink: #14121c; --grass: #74c86c;
+    --warn-bg: #2d2412; --warn-fg: #f3d58f; --warn-line: #5c4a1f; --code-bg: #272236;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #14121c; --surface: #1d1a28; --fg: #ece9f5; --muted: #a39dba; --line: #322d44;
+  --accent: #9a85ff; --accent-ink: #14121c; --grass: #74c86c;
+  --warn-bg: #2d2412; --warn-fg: #f3d58f; --warn-line: #5c4a1f; --code-bg: #272236;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-body); font-size: 17px; line-height: 1.7;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface); }
+.wrap {
+  max-width: 820px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+header.top { padding-block: 40px 24px; }
+.eyebrow { font-family: var(--font-mono); font-size: 13px; letter-spacing: .06em; color: var(--muted); text-transform: uppercase; }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(34px, 7vw, 54px); line-height: 1.1; margin: 8px 0 12px; text-wrap: balance; }
+h1 em { font-style: normal; color: var(--accent); }
+.lead { color: var(--muted); max-width: 62ch; margin: 0; }
+
+.progress {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  background: var(--surface); border-bottom: 1px solid var(--line);
+}
+.progress .wrap { display: flex; align-items: center; gap: 14px; padding-block: 10px; }
+.bar { flex: 1; height: 10px; background: var(--code-bg); border-radius: 2px; overflow: hidden; }
+.bar span { display: block; height: 100%; width: 0; background: var(--grass); transition: width .3s; }
+.progress small { font-family: var(--font-mono); font-size: 13px; color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+main { display: grid; gap: 28px; padding-block: 28px 40px; }
+.need { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px 22px; }
+.need h2 { font-size: 20px; margin: 0 0 8px; }
+.need ul { margin: 0; padding-left: 1.2em; display: grid; gap: 4px; }
+
+.step { display: grid; grid-template-columns: 56px 1fr; gap: 16px; }
+.num {
+  font-family: var(--font-display); font-weight: 700; font-size: 26px;
+  width: 56px; height: 56px; display: grid; place-items: center;
+  background: var(--accent); color: var(--accent-ink); border-radius: 4px;
+  box-shadow: inset -4px -4px 0 rgba(0,0,0,.18);
+}
+.step.done .num { background: var(--grass); }
+.body { min-width: 0; display: grid; gap: 12px; }
+.body h2 { font-size: 22px; line-height: 1.35; margin: 10px 0 0; text-wrap: balance; }
+.body p { margin: 0; max-width: 65ch; }
+.body ol, .body ul { margin: 0; padding-left: 1.3em; display: grid; gap: 4px; }
+figure { margin: 0; }
+figure img { display: block; width: 100%; max-width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--line); }
+figcaption { font-size: 14px; color: var(--muted); margin-top: 6px; }
+b.ui { font-weight: 600; background: var(--code-bg); padding: 1px 7px; border-radius: 4px; white-space: nowrap; }
+
+.copy { display: flex; align-items: stretch; gap: 0; max-width: 100%; }
+.copy code {
+  flex: 1; min-width: 0; overflow-x: auto; white-space: nowrap;
+  font-family: var(--font-mono); font-size: 14px; background: var(--code-bg);
+  padding: 9px 12px; border-radius: 6px 0 0 6px; border: 1px solid var(--line); border-right: 0;
+}
+.copy button {
+  font: 600 14px var(--font-body); padding: 0 14px; cursor: pointer;
+  background: var(--accent); color: var(--accent-ink); border: 0; border-radius: 0 6px 6px 0;
+}
+.copy button:focus-visible, .check input:focus-visible { outline: 3px solid var(--fg); outline-offset: 2px; }
+
+.warn { background: var(--warn-bg); color: var(--warn-fg); border: 1px solid var(--warn-line); border-radius: 8px; padding: 12px 14px; font-size: 15.5px; }
+.warn strong { display: block; margin-bottom: 2px; }
+details.opt { border: 1px dashed var(--line); border-radius: 8px; padding: 10px 14px; }
+details.opt summary { cursor: pointer; font-weight: 600; }
+details.opt[open] summary { margin-bottom: 8px; }
+details.opt p { margin: 0 0 8px; }
+
+.check { display: inline-flex; align-items: center; gap: 10px; font-weight: 600; cursor: pointer; user-select: none; width: fit-content; }
+.check input { width: 22px; height: 22px; accent-color: var(--grass); }
+
+.faq { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px 22px; display: grid; gap: 14px; }
+.faq h2 { font-size: 20px; margin: 0; }
+.faq h3 { font-size: 17px; margin: 0; }
+.faq p { margin: 2px 0 0; color: var(--muted); }
+footer { color: var(--muted); font-size: 14px; padding-block: 0 40px; }
+footer a { color: var(--accent); }
+
+@media (max-width: 520px) {
+  body { font-size: 16px; }
+  .step { grid-template-columns: 1fr; gap: 8px; }
+  .num { width: 44px; height: 44px; font-size: 22px; }
+  .body h2 { margin-top: 0; }
+}
+@media (prefers-reduced-motion: reduce) { .bar span { transition: none; } }
+</style>
+
+<header class="top wrap">
+  <div class="eyebrow">Minecraft Java 26.3 · Rust · Windows</div>
+  <h1>ลง <em>Horizon</em> ผ่านลันเชอร์</h1>
+  <p class="lead">มายคราฟที่เขียนใหม่ด้วย Rust เปิดเร็ว เล่นลื่น ทำตามทีละขั้น ไม่ต้องเขียนโปรแกรมหรือพิมพ์คำสั่ง ติ๊กช่อง "ทำแล้ว" ไปเรื่อยๆ จะรู้ว่าถึงไหนแล้ว</p>
+</header>
+
+<div class="progress" aria-label="ความคืบหน้า">
+  <div class="wrap">
+    <div class="bar"><span id="bar"></span></div>
+    <small id="count">0 / 8 ขั้น</small>
+  </div>
+</div>
+
+<main class="wrap">
+  <section class="need">
+    <h2>ต้องมีก่อนเริ่ม</h2>
+    <ul>
+      <li><strong>บัญชี Microsoft ที่ซื้อ Minecraft: Java Edition แล้ว</strong> (ไม่ต้องลงมายคราฟไว้ก่อน ลันเชอร์โหลดให้เอง)</li>
+      <li>Windows 10 หรือ 11 แบบ 64-bit</li>
+      <li>การ์ดจอที่รองรับ Vulkan หรือ DirectX 12 (การ์ดจอรุ่นไม่เก่ามากใช้ได้หมด)</li>
+      <li>เน็ต และพื้นที่ว่างประมาณ 5 GB</li>
+    </ul>
+  </section>
+
+  <section class="step" data-step="1">
+    <div class="num">1</div>
+    <div class="body">
+      <h2>เปิดหน้า GitHub ทางการ แล้วกดลิงก์เว็บของเกม</h2>
+      <div class="copy"><code id="u1">https://github.com/horizon-rust/horizon</code><button type="button" data-copy="u1">ก๊อป</button></div>
+      <p>ด้านขวาในกล่อง <b class="ui">About</b> กดลิงก์ <b class="ui">playhorizon.dev</b> หรือเข้าเว็บ playhorizon.dev ตรงๆ ก็ได้</p>
+      <figure><img src="img/01-github.jpg" alt="หน้า GitHub ของ horizon-rust/horizon มีกรอบแดงที่ลิงก์ playhorizon.dev ในกล่อง About" loading="lazy" width="1100" height="687"><figcaption>ลิงก์ในกล่อง About คือเว็บของทีมทำเกมเอง</figcaption></figure>
+      <div class="warn"><strong>โหลดจาก horizon-rust เท่านั้น</strong>มีคนก๊อปโปรเจกต์ไปทำหน้าปลอม บางอันอ้างว่า "ล็อกอิน Microsoft ได้" ให้ดูชื่อบน GitHub ว่าเป็น <b class="ui">horizon-rust / horizon</b></div>
+      <label class="check"><input type="checkbox" id="c1"> ทำแล้ว</label>
+    </div>
+  </section>
+
+  <section class="step" data-step="2">
+    <div class="num">2</div>
+    <div class="body">
+      <h2>กด Download the launcher</h2>
+      <p>ได้ไฟล์ <b class="ui">horizon-launcher-windows-x64.zip</b> ขนาดประมาณ 15 MB</p>
+      <figure><img src="img/02-site.jpg" alt="หน้าเว็บ playhorizon.dev มีกรอบแดงที่ปุ่ม Download the launcher" loading="lazy" width="1100" height="687"><figcaption>ใต้ปุ่มบอกเวอร์ชันลันเชอร์ ถ้าเลขใหม่กว่าในรูปก็ใช้ได้</figcaption></figure>
+      <label class="check"><input type="checkbox" id="c2"> ทำแล้ว</label>
+    </div>
+  </section>
+
+  <section class="step" data-step="3">
+    <div class="num">3</div>
+    <div class="body">
+      <h2>แตก zip แล้วเปิดลันเชอร์</h2>
+      <ol>
+        <li>คลิกขวาที่ไฟล์ zip → <b class="ui">แยกไฟล์ทั้งหมด (Extract All)</b></li>
+        <li>ย้ายโฟลเดอร์ไปไว้ที่ที่หาง่าย เช่น <b class="ui">D:\Game</b></li>
+        <li>ดับเบิลคลิก <b class="ui">horizon-launcher.exe</b></li>
+      </ol>
+      <div class="warn"><strong>ถ้าเจอจอฟ้า "Windows protected your PC"</strong>กด <b class="ui">More info</b> แล้วกด <b class="ui">Run anyway</b> ขึ้นเพราะตัวโปรแกรมไม่ได้ซื้อใบรับรองของ Windows ส่วนไฟล์เกมที่ลันเชอร์โหลดต่อ มีการเช็คลายเซ็นของทีมทุกครั้ง</div>
+      <details class="opt">
+        <summary>ไม่บังคับ: ไดรฟ์ C เต็ม อยากให้เก็บเกมไว้ไดรฟ์อื่น</summary>
+        <p>ทำ<strong>ก่อน</strong>เปิดลันเชอร์ครั้งแรก เปิด PowerShell วางคำสั่งนี้ แก้ที่อยู่โฟลเดอร์ตามต้องการ แล้วกด Enter</p>
+        <div class="copy"><code id="u3">[Environment]::SetEnvironmentVariable("HORIZON_LAUNCHER_HOME", "E:\Game\Horizon", "User")</code><button type="button" data-copy="u3">ก๊อป</button></div>
+      </details>
+      <label class="check"><input type="checkbox" id="c3"> ทำแล้ว</label>
+    </div>
+  </section>
+
+  <section class="step" data-step="4">
+    <div class="num">4</div>
+    <div class="body">
+      <h2>หน้าแรกถามเรื่องส่งข้อมูล กด Send nothing</h2>
+      <p>ทุกตัวเลือกปิดไว้อยู่แล้ว กด <b class="ui">Send nothing</b> ได้เลย จะเปิดทีหลังในหน้าตั้งค่าก็ได้</p>
+      <figure><img src="img/03-data.jpg" alt="หน้าต่าง Data collection ของลันเชอร์ ปุ่ม Send nothing และ Save choices อยู่ด้านล่าง" loading="lazy" width="1100" height="709"></figure>
+      <p>มีอย่างเดียวที่ส่งเสมอคือ "I'm playing ping" ใช้นับว่ามีคนเล่นอยู่กี่คน ไม่มีชื่อบัญชี และไม่เก็บ IP</p>
+      <label class="check"><input type="checkbox" id="c4"> ทำแล้ว</label>
+    </div>
+  </section>
+
+  <section class="step" data-step="5">
+    <div class="num">5</div>
+    <div class="body">
+      <h2>ล็อกอินด้วยบัญชี Microsoft</h2>
+      <ol>
+        <li>กด <b class="ui">Sign in with Microsoft</b></li>
+        <li>ลันเชอร์จะขึ้นรหัส 8 ตัว กด <b class="ui">Open link</b> (หรือเข้า microsoft.com/link เอง) แล้วกรอกรหัส</li>
+        <li>ล็อกอินในเว็บของ Microsoft ให้เสร็จ แล้วกลับมาที่ลันเชอร์ มันจะไปต่อเอง</li>
+      </ol>
+      <figure><img src="img/04-signin.jpg" alt="หน้าต่าง Sign in to play ของลันเชอร์ มีปุ่ม Sign in with Microsoft" loading="lazy" width="1100" height="709"></figure>
+      <figure><img src="img/05-code.jpg" alt="ลันเชอร์แสดงรหัสสำหรับกรอกที่ microsoft.com/link รหัสในรูปถูกเบลอ" loading="lazy" width="1100" height="709"><figcaption>รหัสของแต่ละคนไม่เหมือนกัน และใช้ได้ครั้งเดียว</figcaption></figure>
+      <div class="warn"><strong>รหัสผ่านพิมพ์ในเว็บ Microsoft เท่านั้น</strong>ลันเชอร์ไม่มีช่องให้ใส่รหัสผ่าน ถ้าเจอโปรแกรมไหนขอรหัสผ่าน Microsoft ตรงๆ แปลว่าไม่ใช่ของจริง</div>
+      <label class="check"><input type="checkbox" id="c5"> ทำแล้ว</label>
+    </div>
+  </section>
+
+  <section class="step" data-step="6">
+    <div class="num">6</div>
+    <div class="body">
+      <h2>กด Play แล้วรอครั้งแรก</h2>
+      <p>ครั้งแรกปุ่มจะขึ้นว่า <b class="ui">Getting ready…</b> ลันเชอร์จะทำงานไล่ตามขั้นข้างล่างให้เอง รอหลายนาที ขึ้นกับความเร็วเน็ต ไม่ได้ค้าง</p>
+      <ul>
+        <li><strong>Game files</strong> โหลดมายคราฟ 26.3 จากเซิร์ฟเวอร์ของ Mojang</li>
+        <li><strong>Java</strong> และ <strong>Sounds</strong> โหลดตัวช่วยกับเสียงเกม</li>
+        <li><strong>Prepare</strong> แปลงไฟล์ให้ Horizon ใช้ได้</li>
+      </ul>
+      <figure><img src="img/06-ready.jpg" alt="ลันเชอร์กำลัง Getting ready มีแถบความคืบหน้าและรายการ Game files, Java, Sounds, Prepare, Play" loading="lazy" width="1100" height="709"></figure>
+      <p>เสร็จแล้วสถานะจะเป็น <b class="ui">Ready</b> และปุ่มเปลี่ยนเป็น <b class="ui">Play</b></p>
+      <figure><img src="img/07-play.jpg" alt="ลันเชอร์พร้อมเล่น สถานะ Ready ปุ่ม Play สีม่วง" loading="lazy" width="1100" height="709"></figure>
+      <label class="check"><input type="checkbox" id="c6"> ทำแล้ว</label>
+    </div>
+  </section>
+
+  <section class="step" data-step="7">
+    <div class="num">7</div>
+    <div class="body">
+      <h2>เกมเปิดแล้ว สร้างโลกใหม่</h2>
+      <p>เข้า <b class="ui">Singleplayer</b> → <b class="ui">Create New World</b> ตั้งชื่อโลก แล้วกด <b class="ui">Create New World</b></p>
+      <figure><img src="img/08-title.jpg" alt="หน้าแรกของเกม โลโก้ Minecraft Rust Edition" loading="lazy" width="1100" height="646"></figure>
+      <figure><img src="img/09-world.jpg" alt="หน้าสร้างโลก มีช่อง World Name, Game Mode, Difficulty และ Allow Commands" loading="lazy" width="1100" height="646"><figcaption>อยากใช้คำสั่ง เช่น /fill หรือ /gamemode ให้เปิด Allow Commands เป็น ON</figcaption></figure>
+      <label class="check"><input type="checkbox" id="c7"> ทำแล้ว</label>
+    </div>
+  </section>
+
+  <section class="step" data-step="8">
+    <div class="num">8</div>
+    <div class="body">
+      <h2>เล่นได้แล้ว</h2>
+      <p>กด <b class="ui">F3</b> ดู FPS กับข้อมูลเครื่อง ครั้งต่อไปแค่เปิด <b class="ui">horizon-launcher.exe</b> แล้วกด <b class="ui">Play</b> ไม่ต้องรอนานเหมือนครั้งแรก</p>
+      <figure><img src="img/10-ingame.jpg" alt="ในเกม ตัวละครยืนในทุ่งหญ้า มีต้นซากุระอยู่ไกลๆ" loading="lazy" width="1100" height="646"></figure>
+      <label class="check"><input type="checkbox" id="c8"> ทำแล้ว</label>
+    </div>
+  </section>
+
+  <section class="faq">
+    <h2>ถามบ่อย</h2>
+    <div><h3>ล็อกอินแล้วเล่นไม่ได้</h3><p>บัญชีนั้นยังไม่ได้ซื้อ Minecraft: Java Edition ต้องเป็นบัญชีที่ซื้อแล้วเท่านั้น</p></div>
+    <div><h3>เกมอัปเดตเองไหม</h3><p>อัปเดตเอง ลันเชอร์จะโหลดเวอร์ชันใหม่ให้ตอนเปิด โลกที่เล่นไว้ไม่หาย</p></div>
+    <div><h3>ใส่มอด Fabric / Forge ได้ไหม</h3><p>ไม่ได้ Horizon ไม่ได้รันโค้ด Java ของมายคราฟ มอดต้องเป็นแบบของ Horizon เอง หาได้ในแท็บ Mods ของลันเชอร์</p></div>
+    <div><h3>แชร์โฟลเดอร์เกมให้เพื่อนได้ไหม</h3><p>ไม่ได้ ไฟล์ข้างในเป็นของ Mojang ที่โหลดมาด้วยบัญชีของเรา เพื่อนต้องลงเองด้วยบัญชีของตัวเอง</p></div>
+    <div><h3>ครั้งแรกเปิดช้า</h3><p>ปกติ ครั้งแรกต้องโหลดและเตรียมไฟล์ ครั้งต่อไปจะเร็วขึ้นมาก</p></div>
+  </section>
+
+  <footer>
+    Horizon เป็นโปรเจกต์ของชุมชน ไม่ใช่ของ Mojang หรือ Microsoft · รูปในหน้านี้ถ่ายจากลันเชอร์เวอร์ชัน 0.2.32 ปุ่มอาจเปลี่ยนเล็กน้อยในเวอร์ชันใหม่ · โค้ด: <a href="https://github.com/horizon-rust/horizon" target="_blank" rel="noopener">github.com/horizon-rust/horizon</a>
+  </footer>
+</main>
+
+<script>
+(function () {
+  var KEY = 'horizon-launcher-guide-done';
+  var boxes = Array.prototype.slice.call(document.querySelectorAll('.check input'));
+  var saved = {};
+  try { saved = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { saved = {}; }
+  function render() {
+    var n = 0;
+    boxes.forEach(function (b) {
+      var step = b.closest('.step');
+      if (b.checked) n++;
+      if (step) step.classList.toggle('done', b.checked);
+    });
+    document.getElementById('bar').style.width = (n / boxes.length * 100) + '%';
+    document.getElementById('count').textContent = n + ' / ' + boxes.length + ' ขั้น';
+  }
+  boxes.forEach(function (b) {
+    b.checked = !!saved[b.id];
+    b.addEventListener('change', function () {
+      saved[b.id] = b.checked;
+      try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {}
+      render();
+    });
+  });
+  render();
+
+  document.querySelectorAll('[data-copy]').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var el = document.getElementById(btn.getAttribute('data-copy'));
+      var text = el.textContent;
+      function done() { btn.textContent = 'ก๊อปแล้ว'; setTimeout(function () { btn.textContent = 'ก๊อป'; }, 1500); }
+      function fallback() {
+        var r = document.createRange(); r.selectNodeContents(el);
+        var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+        btn.textContent = 'กด Ctrl+C';
+      }
+      try { navigator.clipboard.writeText(text).then(done, fallback); } catch (e) { fallback(); }
+    });
+  });
+})();
+</script>
+
+</html>
